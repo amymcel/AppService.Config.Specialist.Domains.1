@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "EngineerAlias": {
+      "type": "string",
+      "defaultValue": "MsAlias",
+      "metadata": { "description": "Engineer MS Alias" }
+      }
+    },
+  "variables": {
+    "webAppRG": "[resourceGroup().name]",
+    "appServicePlanName": "[concat(parameters('EngineerAlias'),'-D1-ASP')]",
+    "webAppName": "[concat(parameters('EngineerAlias'),'-D1-APP')]",
+    "appServicePlanSku": "S1",
+    "workerSize": "0"
+  },
+  "resources": [
+    {
+      "name": "[variables('appServicePlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[variables('appServicePlanSku')]",
+        "capacity": "[variables('workerSize')]"
+      },
+      "kind": "app"
+    },
+    {
+      "name": "[variables('webAppName')]",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "location": "[resourceGroup().location]",
+      "kind": "app",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
+      }
+    }
+  ],
+    "outputs": {}
+  }
